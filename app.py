@@ -1,166 +1,155 @@
 import streamlit as st
 import ai_engine
-from prompts import (
-    BRANDING_PROMPT,
-    MARKET_PROMPT,
-    COMPETITOR_PROMPT,
-    DECISION_PROMPT
-)
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
     page_title="OriginX AI",
-    page_icon="🌍",
+    page_icon="🚀",
     layout="wide"
 )
 
-# ---------------- CUSTOM CSS ----------------
+# ---------------- CLEAN SAAS STYLING ----------------
 st.markdown("""
 <style>
+    /* Background */
+    .stApp {
+        background-color: #0b1220;
+        color: #e5e7eb;
+    }
 
-.main {
-    background-color: #F7F8FC;
-}
+    /* Title */
+    h1 {
+        color: #60a5fa !important;
+        font-size: 42px !important;
+        font-weight: 700;
+    }
 
-/* Title */
-.title {
-    font-size: 42px;
-    font-weight: 800;
-    color: #6C5CE7;
-}
+    /* Subtext */
+    .stCaption {
+        color: #94a3b8;
+    }
 
-.subtitle {
-    font-size: 18px;
-    color: #444;
-    margin-bottom: 20px;
-}
+    /* Input boxes */
+    .stTextInput > div > div > input,
+    .stTextArea > div > div > textarea {
+        background-color: #111827;
+        color: white;
+        border-radius: 10px;
+        border: 1px solid #1f2937;
+    }
 
-/* Card */
-.card {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0px 4px 20px rgba(0,0,0,0.08);
-    margin-bottom: 15px;
+    /* Button */
+    .stButton > button {
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        color: white;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 10px;
+        font-weight: 600;
+    }
 
-    /* FIX TEXT VISIBILITY */
-    color: #111 !important;
-    font-size: 15px;
-    line-height: 1.6;
-}
+    .stButton > button:hover {
+        transform: scale(1.02);
+        transition: 0.2s;
+    }
 
-/* Button */
-.stButton>button {
-    background-color: #6C5CE7;
-    color: white;
-    padding: 0.6rem 1.2rem;
-    border-radius: 8px;
-    border: none;
-    font-weight: 600;
-}
-
-.stButton>button:hover {
-    background-color: #00D2D3;
-    color: black;
-}
-
+    /* Card-like container */
+    .card {
+        background-color: #111827;
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid #1f2937;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # ---------------- HEADER ----------------
-st.markdown('<div class="title">🌍 OriginX AI</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">AI Product Intelligence & Global Decision Engine</div>', unsafe_allow_html=True)
+st.title("🚀 OriginX AI")
+st.caption("Startup Intelligence Engine — Validate ideas like an investor")
 
 st.markdown("---")
 
 # ---------------- INPUT SECTION ----------------
-with st.container():
-    st.markdown("### 📦 Product Details")
+col1, col2 = st.columns(2)
 
-    col1, col2 = st.columns(2)
+with col1:
+    product = st.text_input("📦 Product Name")
 
-    with col1:
-        product = st.text_input("Product Name")
+with col2:
+    country = st.text_input("🌍 Target Country")
 
-    with col2:
-        country = st.text_input("Target Country")
+description = st.text_area("🧠 Product Description")
 
-    description = st.text_area("Product Description", height=120)
+# ---------------- PROMPT ----------------
+MASTER_PROMPT = """
+You are OriginX AI — a startup intelligence engine used by founders and investors.
 
-    generate = st.button("🚀 Analyze Product", use_container_width=True)
+Analyze deeply like a venture capitalist.
 
-st.markdown("---")
+Product: {product}
+Description: {description}
+Country: {country}
 
-# ---------------- OUTPUT ----------------
-if generate:
+Return structured output:
+
+BRANDING:
+- Brand Name
+- Tagline
+- Positioning
+- Target Audience
+- Emotional Strategy
+
+MARKET:
+- Demand Level
+- Trends
+- Growth Potential
+- Pain Points
+
+COMPETITOR:
+- Top competitors
+- Weaknesses
+- Market gap
+- Advantage strategy
+
+DECISION:
+- Score (0–100)
+- Profit Potential
+- Risk Level
+- Final Verdict (GO / NO-GO / TEST)
+- Investor Summary
+"""
+
+# ---------------- ANALYZE ----------------
+st.markdown("")
+
+if st.button("🚀 Analyze Idea"):
 
     if not product or not description or not country:
-        st.warning("Please fill all fields before generating insights.")
+        st.warning("Please fill all fields")
         st.stop()
 
-    tab1, tab2, tab3, tab4 = st.tabs([
-        "🧠 Brand Strategy",
-        "📊 Market Analysis",
-        "⚔️ Competitor Analysis",
-        "📈 Decision Engine"
-    ])
+    prompt = MASTER_PROMPT.format(
+        product=product,
+        description=description,
+        country=country
+    )
 
-    # ---------------- BRAND ----------------
-    with tab1:
-        with st.spinner("Generating brand strategy..."):
-            prompt = BRANDING_PROMPT.format(
-                product=product,
-                description=description,
-                country=country
-            )
-            result = ai_engine.generate_response(prompt)
+    with st.spinner("Analyzing market intelligence..."):
+        result = ai_engine.generate_response(prompt)
 
-            st.markdown(
-                f"<div class='card'><pre style='white-space: pre-wrap;'>{result}</pre></div>",
-                unsafe_allow_html=True
-            )
+    # ---------------- OUTPUT ----------------
+    st.markdown("## 📊 Intelligence Report")
 
-    # ---------------- MARKET ----------------
-    with tab2:
-        with st.spinner("Analyzing market..."):
-            prompt = MARKET_PROMPT.format(
-                product=product,
-                description=description,
-                country=country
-            )
-            result = ai_engine.generate_response(prompt)
+    st.markdown("---")
 
-            st.markdown(
-                f"<div class='card'><pre style='white-space: pre-wrap;'>{result}</pre></div>",
-                unsafe_allow_html=True
-            )
+    st.markdown(
+        f"""
+        <div class="card">
+            {result}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-    # ---------------- COMPETITOR ----------------
-    with tab3:
-        with st.spinner("Analyzing competitors..."):
-            prompt = COMPETITOR_PROMPT.format(
-                product=product,
-                description=description,
-                country=country
-            )
-            result = ai_engine.generate_response(prompt)
-
-            st.markdown(
-                f"<div class='card'><pre style='white-space: pre-wrap;'>{result}</pre></div>",
-                unsafe_allow_html=True
-            )
-
-    # ---------------- DECISION ENGINE ----------------
-    with tab4:
-        with st.spinner("Calculating decision score..."):
-            prompt = DECISION_PROMPT.format(
-                product=product,
-                description=description,
-                country=country
-            )
-            result = ai_engine.generate_response(prompt)
-
-            st.markdown(
-                f"<div class='card'><pre style='white-space: pre-wrap;'>{result}</pre></div>",
-                unsafe_allow_html=True
-            )
+    st.markdown("---")
+    st.caption("OriginX AI • SaaS MVP • Built for startup validation")
